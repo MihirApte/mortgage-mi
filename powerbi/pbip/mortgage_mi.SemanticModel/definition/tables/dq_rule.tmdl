@@ -1,0 +1,74 @@
+table dq_rule
+	lineageTag: 46d402ec-6124-4a5d-aa2c-6c47946be8e1
+
+	column rule_id
+		dataType: string
+		lineageTag: f63899ab-5876-4386-87d3-001eba4fc830
+		summarizeBy: none
+		sourceColumn: rule_id
+
+		annotation SummarizationSetBy = Automatic
+
+	column dimension
+		dataType: string
+		lineageTag: 3b8461b2-3809-4bf8-a5c2-17f022867e10
+		summarizeBy: none
+		sourceColumn: dimension
+
+		annotation SummarizationSetBy = Automatic
+
+	column layer
+		dataType: string
+		lineageTag: 31105600-8490-4b70-8def-9de29e9c520f
+		summarizeBy: none
+		sourceColumn: layer
+
+		annotation SummarizationSetBy = Automatic
+
+	column rule_name
+		dataType: string
+		lineageTag: 60e3bed2-183d-4b9a-80f5-0b1563e9429e
+		summarizeBy: none
+		sourceColumn: rule_name
+
+		annotation SummarizationSetBy = Automatic
+
+	column description
+		dataType: string
+		lineageTag: 46ce5747-463d-4070-a1d7-6222fac7199a
+		summarizeBy: none
+		sourceColumn: description
+
+		annotation SummarizationSetBy = Automatic
+
+	column severity
+		dataType: string
+		lineageTag: 1e18d703-6a4d-4010-9fa8-6966d0e06e9b
+		summarizeBy: none
+		sourceColumn: severity
+
+		annotation SummarizationSetBy = Automatic
+
+	column on_failure
+		dataType: string
+		lineageTag: 69272240-a675-4a61-b602-702b1a92d362
+		summarizeBy: none
+		sourceColumn: on_failure
+
+		annotation SummarizationSetBy = Automatic
+
+	partition dq_rule = m
+		mode: import
+		source =
+				let
+				    Source = Csv.Document(File.Contents("D:\Projects\mortgage-bi-dashboard\powerbi\data\dq_rule.csv"),[Delimiter=",", Columns=7, Encoding=1252, QuoteStyle=QuoteStyle.None]),
+				    #"Changed Type" = Table.TransformColumnTypes(Source,{{"Column1", type text}, {"Column2", type text}, {"Column3", type text}, {"Column4", type text}, {"Column5", type text}, {"Column6", type text}, {"Column7", type text}}),
+				    #"Promoted Headers" = Table.PromoteHeaders(#"Changed Type", [PromoteAllScalars=true]),
+				    #"Changed Type1" = Table.TransformColumnTypes(#"Promoted Headers",{{"rule_id", type text}, {"dimension", type text}, {"layer", type text}, {"rule_name", type text}, {"description", type text}, {"severity", type text}, {"on_failure", type text}})
+				in
+				    #"Changed Type1"
+
+	annotation PBI_ResultType = Table
+
+	annotation PBI_NavigationStepName = Navigation
+

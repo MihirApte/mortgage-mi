@@ -1,0 +1,24 @@
+check_id,run_label,rule_id,rows_tested,rows_failed,pct_failed,status,detail
+1,pipeline_run,DQ01,19199,0,0.000,pass,Eight key columns tested per row
+2,pipeline_run,DQ02,19199,70,0.365,warn,"Rows with both value columns filled, or neither"
+3,pipeline_run,DQ03,19199,0,0.000,pass,Non-quarantined clean rows with no numeric value
+4,pipeline_run,DQ04,19269,0,0.000,pass,Populated value cells that are not digits with optional commas and spaces
+5,pipeline_run,DQ05,19199,0,0.000,pass,Rows whose reporting date is not a real dd/mm/yyyy date
+6,pipeline_run,DQ06,19199,5935,30.913,warn,21 distinct dates are not quarter ends
+7,pipeline_run,DQ07,19199,0,0.000,pass,"Unknown lender group, format or observation type"
+8,pipeline_run,DQ08,19199,0,0.000,pass,Rows identical to another row in every source column
+9,pipeline_run,DQ09,19199,0,0.000,pass,Rows sharing a grain with another non-quarantined row
+10,pipeline_run,DQ10,19199,0,0.000,pass,Fact rows sharing the same four keys
+11,pipeline_run,DQ11,19199,0,0.000,pass,Clean values below zero
+12,pipeline_run,DQ12,5121,0,0.000,pass,Line items where arrears amount is above balance
+13,pipeline_run,DQ13,490,0,0.000,pass,Segment quarters where arrears total is above total outstanding (accounts and balance)
+14,pipeline_run,DQ14,245,0,0.000,pass,Segment quarters where account counts do not add up exactly
+15,pipeline_run,DQ15,490,0,0.000,pass,Largest absolute gap observed: 2 thousand euro; 122 comparisons differ by rounding
+16,pipeline_run,DQ16,133,2,1.504,warn,Segment quarters where the four legal status counts differ from total accounts in arrears
+17,pipeline_run,DQ17,19199,0,0.000,pass,Clean rows with no matching dim_measure row
+18,pipeline_run,DQ18,19199,0,0.000,pass,Clean rows whose quarter end is missing from dim_date
+19,pipeline_run,DQ19,19199,0,0.000,pass,Fact rows with a missing dimension row
+20,pipeline_run,DQ20,19199,0,0.000,pass,Fact rows whose source_raw_row_id is not in raw
+21,pipeline_run,DQ21,1230,5,0.407,warn,2026 Q1 Banks PDH
+22,pipeline_run,DQ22,67,0,0.000,pass,Quarters in dim_date with no fact rows
+23,pipeline_run,DQ23,240,53,22.083,info,Segment quarters where start of quarter differs from the prior quarter end

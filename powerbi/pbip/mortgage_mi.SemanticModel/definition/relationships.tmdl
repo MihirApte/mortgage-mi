@@ -1,0 +1,21 @@
+relationship 7e4b60f9-626f-4245-adaa-fa061880ffe6
+	joinOnDateBehavior: datePartOnly
+	fromColumn: dim_date.quarter_end_date
+	toColumn: LocalDateTable_34c3d1a9-b8c0-49e9-9e41-8106f60dfe5c.Date
+
+relationship AutoDetected_e0c4a67c-e5a9-4640-ba47-6120458381a6
+	fromColumn: fact_mortgage_measure.date_key
+	toColumn: dim_date.date_key
+
+relationship AutoDetected_006b00bb-9ccb-42f4-8114-7d17cca5e7ac
+	fromColumn: fact_mortgage_measure.measure_key
+	toColumn: dim_measure.measure_key
+
+relationship AutoDetected_c717dd51-50f9-4e66-a371-05d0bb93c020
+	fromColumn: fact_mortgage_measure.segment_key
+	toColumn: dim_segment.segment_key
+
+relationship 000b516e-e595-1fba-8b96-4072167f93f3
+	fromColumn: dq_check_result.rule_id
+	toColumn: dq_rule.rule_id
+

@@ -1,0 +1,350 @@
+// measures.dax
+// All DAX measures for the Mortgage Portfolio MI dashboard.
+// Create a blank table named _Measures (Home > Enter data > name it _Measures > Load), then for each
+// block below use Home > New measure and paste ONE measure at a time. The comment line above each
+// measure names it. Names must match exactly because measures refer to each other.
+//
+// Model tables (names as imported from powerbi/data):
+//   dim_date, dim_segment, dim_measure, fact_mortgage_measure, dq_rule, dq_check_result,
+//   dq_reconciliation, dq_issue_log, expected_kpi
+//
+// Key design rule: the source values are POSITIONS at a quarter end (balances and account counts).
+// A position can be added across segments in one quarter, but never across quarters. Every base
+// measure therefore picks exactly one quarter, called the report date. Ignoring this rule would
+// give numbers that look plausible and are wrong.
+
+// ===================================================================
+// Section 1: which quarter are we reporting
+// ===================================================================
+
+// Measure: Latest Complete Quarter Date
+// The newest quarter where all 4 segments report all 5 headline measures (flag computed in SQL).
+Latest Complete Quarter Date =
+CALCULATE (
+    MAX ( dim_date[quarter_end_date] ),
+    REMOVEFILTERS ( dim_date ),
+    dim_date[is_latest_complete_quarter] = TRUE ()
+)
+
+// Measure: Report Date
+// If one quarter is in scope (slicer pick, or one point on a chart axis) use it.
+// Otherwise fall back to the latest complete quarter, so a card never adds quarters together.
+Report Date =
+IF (
+    HASONEVALUE ( dim_date[quarter_end_date] ),
+    MAX ( dim_date[quarter_end_date] ),
+    [Latest Complete Quarter Date]
+)
+
+// Measure: Reporting Quarter Label
+Reporting Quarter Label =
+LOOKUPVALUE ( dim_date[quarter_label], dim_date[quarter_end_date], [Report Date] )
+
+// Measure: Prior Quarter Date
+// Uses prior_quarter_key from dim_date, so the first quarter in the data correctly has no prior.
+Prior Quarter Date =
+VAR d = [Report Date]
+VAR pk = LOOKUPVALUE ( dim_date[prior_quarter_key], dim_date[quarter_end_date], d )
+RETURN
+    LOOKUPVALUE ( dim_date[quarter_end_date], dim_date[date_key], pk )
+
+// Measure: Is Complete Quarter
+Is Complete Quarter =
+LOOKUPVALUE ( dim_date[is_complete_quarter], dim_date[quarter_end_date], [Report Date] )
+
+// ===================================================================
+// Section 2: base measures at the report date
+// ===================================================================
+
+// Measure: Arrears Accounts
+// Number of mortgage accounts in arrears (total row only, so buckets are not added to their total).
+Arrears Accounts =
+VAR d = [Report Date]
+RETURN
+    CALCULATE (
+        SUM ( fact_mortgage_measure[value] ),
+        dim_measure[measure_code] = "ARREARS_ACCOUNTS",
+        REMOVEFILTERS ( dim_date ),
+        dim_date[quarter_end_date] = d
+    )
+
+// Measure: Outstanding Accounts
+Outstanding Accounts =
+VAR d = [Report Date]
+RETURN
+    CALCULATE (
+        SUM ( fact_mortgage_measure[value] ),
+        dim_measure[measure_code] = "OUTSTANDING_ACCOUNTS",
+        REMOVEFILTERS ( dim_date ),
+        dim_date[quarter_end_date] = d
+    )
+
+// Measure: Arrears Balance
+// Outstanding balance of the accounts that are in arrears, in EUR thousands as published.
+Arrears Balance =
+VAR d = [Report Date]
+RETURN
+    CALCULATE (
+        SUM ( fact_mortgage_measure[value] ),
+        dim_measure[measure_code] = "ARREARS_BALANCE",
+        REMOVEFILTERS ( dim_date ),
+        dim_date[quarter_end_date] = d
+    )
+
+// Measure: Outstanding Balance
+// Total outstanding balance of all mortgage accounts, in EUR thousands as published.
+Outstanding Balance =
+VAR d = [Report Date]
+RETURN
+    CALCULATE (
+        SUM ( fact_mortgage_measure[value] ),
+        dim_measure[measure_code] = "OUTSTANDING_BALANCE",
+        REMOVEFILTERS ( dim_date ),
+        dim_date[quarter_end_date] = d
+    )
+
+// Measure: Arrears Amount
+// The overdue amount itself (what is owed and unpaid), in EUR thousands as published.
+Arrears Amount =
+VAR d = [Report Date]
+RETURN
+    CALCULATE (
+        SUM ( fact_mortgage_measure[value] ),
+        dim_measure[measure_code] = "ARREARS_AMOUNT",
+        REMOVEFILTERS ( dim_date ),
+        dim_date[quarter_end_date] = d
+    )
+
+// ===================================================================
+// Section 3: rates and display units
+// ===================================================================
+
+// Measure: Arrears Rate (Accounts)
+// Accounts in arrears divided by all accounts. Format as percentage, 2 decimals.
+Arrears Rate (Accounts) =
+DIVIDE ( [Arrears Accounts], [Outstanding Accounts] )
+
+// Measure: Arrears Rate (Balance)
+// Balance of accounts in arrears divided by total balance. Format as percentage, 2 decimals.
+Arrears Rate (Balance) =
+DIVIDE ( [Arrears Balance], [Outstanding Balance] )
+
+// Measure: Outstanding Balance (EUR bn)
+// Source is in EUR thousands, so one million thousands is one billion euro. Format 0.0.
+Outstanding Balance (EUR bn) =
+DIVIDE ( [Outstanding Balance], 1000000 )
+
+// Measure: Arrears Balance (EUR bn)
+Arrears Balance (EUR bn) =
+DIVIDE ( [Arrears Balance], 1000000 )
+
+// Measure: Arrears Amount (EUR m)
+// EUR thousands divided by 1000 gives EUR millions. Format #,0.0.
+Arrears Amount (EUR m) =
+DIVIDE ( [Arrears Amount], 1000 )
+
+// ===================================================================
+// Section 4: quarter on quarter change
+// The source is quarterly, so this is quarter on quarter. It is not month on month.
+// ===================================================================
+
+// Measure: Arrears Accounts PQ
+Arrears Accounts PQ =
+VAR d = [Prior Quarter Date]
+RETURN
+    CALCULATE (
+        SUM ( fact_mortgage_measure[value] ),
+        dim_measure[measure_code] = "ARREARS_ACCOUNTS",
+        REMOVEFILTERS ( dim_date ),
+        dim_date[quarter_end_date] = d
+    )
+
+// Measure: Outstanding Accounts PQ
+Outstanding Accounts PQ =
+VAR d = [Prior Quarter Date]
+RETURN
+    CALCULATE (
+        SUM ( fact_mortgage_measure[value] ),
+        dim_measure[measure_code] = "OUTSTANDING_ACCOUNTS",
+        REMOVEFILTERS ( dim_date ),
+        dim_date[quarter_end_date] = d
+    )
+
+// Measure: Outstanding Balance PQ
+Outstanding Balance PQ =
+VAR d = [Prior Quarter Date]
+RETURN
+    CALCULATE (
+        SUM ( fact_mortgage_measure[value] ),
+        dim_measure[measure_code] = "OUTSTANDING_BALANCE",
+        REMOVEFILTERS ( dim_date ),
+        dim_date[quarter_end_date] = d
+    )
+
+// Measure: Arrears Rate (Accounts) PQ
+Arrears Rate (Accounts) PQ =
+DIVIDE ( [Arrears Accounts PQ], [Outstanding Accounts PQ] )
+
+// Measure: QoQ Change Arrears Accounts
+// BLANK when either quarter is missing, so a missing quarter is never shown as a change from zero.
+QoQ Change Arrears Accounts =
+IF (
+    ISBLANK ( [Arrears Accounts] ) || ISBLANK ( [Arrears Accounts PQ] ),
+    BLANK (),
+    [Arrears Accounts] - [Arrears Accounts PQ]
+)
+
+// Measure: QoQ Change Arrears Rate (pp)
+// Change in the arrears rate in percentage points. Format 0.00. Example: -0.17 means 0.17 points lower.
+QoQ Change Arrears Rate (pp) =
+IF (
+    ISBLANK ( [Arrears Rate (Accounts)] ) || ISBLANK ( [Arrears Rate (Accounts) PQ] ),
+    BLANK (),
+    ( [Arrears Rate (Accounts)] - [Arrears Rate (Accounts) PQ] ) * 100
+)
+
+// Measure: QoQ Change Outstanding Balance
+QoQ Change Outstanding Balance =
+IF (
+    ISBLANK ( [Outstanding Balance] ) || ISBLANK ( [Outstanding Balance PQ] ),
+    BLANK (),
+    [Outstanding Balance] - [Outstanding Balance PQ]
+)
+
+// ===================================================================
+// Section 5: arrears age buckets (3 harmonised buckets, comparable across all years)
+// ===================================================================
+
+// Measure: Accounts in Arrears by Bucket
+// Put dim_measure[harmonised_bucket] on the visual axis. Leaf rows only (is_total FALSE), so nothing
+// is counted twice. SQL proves the 3 buckets add exactly to the total in every segment and quarter.
+Accounts in Arrears by Bucket =
+VAR d = [Report Date]
+RETURN
+    CALCULATE (
+        SUM ( fact_mortgage_measure[value] ),
+        dim_measure[category] = "Arrears",
+        dim_measure[metric_name] = "Accounts",
+        dim_measure[is_total] = FALSE (),
+        REMOVEFILTERS ( dim_date ),
+        dim_date[quarter_end_date] = d
+    )
+
+// Measure: Over 180 Days Accounts
+Over 180 Days Accounts =
+CALCULATE ( [Accounts in Arrears by Bucket], dim_measure[harmonised_bucket] = "Over 180 days" )
+
+// Measure: Over 180 Days Share
+// Share of arrears accounts that are more than 180 days behind. Format percentage, 1 decimal.
+Over 180 Days Share =
+DIVIDE ( [Over 180 Days Accounts], [Arrears Accounts] )
+
+// ===================================================================
+// Section 6: risk ranking and mix
+// ===================================================================
+
+// Measure: Segment Risk Rank
+// 1 is the segment with the highest arrears rate among the segments in view.
+// Blank on a total row, because a total is not a segment and has no rank.
+Segment Risk Rank =
+IF (
+    ISBLANK ( [Arrears Rate (Accounts)] ) || NOT HASONEVALUE ( dim_segment[segment_label] ),
+    BLANK (),
+    RANKX (
+        ALLSELECTED ( dim_segment[segment_label] ),
+        [Arrears Rate (Accounts)],
+        ,
+        DESC,
+        DENSE
+    )
+)
+
+// Measure: Highest Risk Segment
+// Name of the segment with the highest arrears rate. Use on a card.
+Highest Risk Segment =
+VAR t =
+    ADDCOLUMNS (
+        ALLSELECTED ( dim_segment[segment_label] ),
+        "RiskRate", [Arrears Rate (Accounts)]
+    )
+VAR top1 = TOPN ( 1, FILTER ( t, NOT ISBLANK ( [RiskRate] ) ), [RiskRate], DESC )
+RETURN
+    MAXX ( top1, dim_segment[segment_label] )
+
+// Measure: Share of Total Outstanding Balance
+// How much of the whole market balance sits in the segment in view. Format percentage.
+Share of Total Outstanding Balance =
+DIVIDE (
+    [Outstanding Balance],
+    CALCULATE ( [Outstanding Balance], REMOVEFILTERS ( dim_segment ) )
+)
+
+// ===================================================================
+// Section 7: completeness guards (honesty about missing data)
+// ===================================================================
+
+// Measure: Segments Reporting
+// How many of the 4 segments have an arrears figure in the report quarter.
+Segments Reporting =
+SUMX (
+    ALL ( dim_segment[segment_label] ),
+    IF ( ISBLANK ( [Arrears Accounts] ), 0, 1 )
+)
+
+// Measure: Completeness Note
+// Put this on a card as a subtitle under the KPIs. It states plainly when a segment is missing.
+Completeness Note =
+[Reporting Quarter Label] & ": " & [Segments Reporting] & " of 4 segments reported"
+    & IF ( [Segments Reporting] < 4, ". Totals leave out the missing segment.", "." )
+
+// Measure: Arrears Rate Market Trend
+// For the market wide trend line. Shows a value only where all 4 segments report, so the line
+// never mixes a full market with a partial one.
+Arrears Rate Market Trend =
+IF ( [Is Complete Quarter], [Arrears Rate (Accounts)] )
+
+// ===================================================================
+// Section 8: data quality page
+// ===================================================================
+
+// Measure: DQ Rules Run
+DQ Rules Run =
+COUNTROWS ( dq_check_result )
+
+// Measure: DQ Rules Passed
+DQ Rules Passed =
+CALCULATE ( COUNTROWS ( dq_check_result ), dq_check_result[status] = "pass" )
+
+// Measure: DQ Rules Warning
+DQ Rules Warning =
+CALCULATE ( COUNTROWS ( dq_check_result ), dq_check_result[status] = "warn" )
+
+// Measure: DQ Rules Info
+DQ Rules Info =
+CALCULATE ( COUNTROWS ( dq_check_result ), dq_check_result[status] = "info" )
+
+// Measure: DQ Rules Failed
+// Error level failures. The pipeline gate stops the build when this is above zero, so on a built
+// dashboard it is zero. It is shown anyway, because a quality page that hides its failures is not honest.
+DQ Rules Failed =
+CALCULATE ( COUNTROWS ( dq_check_result ), dq_check_result[status] = "fail" ) + 0
+
+// Measure: DQ Pass Rate
+DQ Pass Rate =
+DIVIDE ( [DQ Rules Passed], [DQ Rules Run] )
+
+// Measure: Reconciliation Steps
+Reconciliation Steps =
+COUNTROWS ( dq_reconciliation )
+
+// Measure: Reconciliation Matched
+Reconciliation Matched =
+CALCULATE ( COUNTROWS ( dq_reconciliation ), dq_reconciliation[status] = "match" )
+
+// Measure: Issues Logged
+Issues Logged =
+COUNTROWS ( dq_issue_log )
+
+// Measure: Issue Rows Affected
+Issue Rows Affected =
+SUM ( dq_issue_log[rows_affected] )

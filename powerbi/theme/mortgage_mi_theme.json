@@ -1,0 +1,10 @@
+{
+  "name": "Mortgage MI",
+  "dataColors": ["#2F6FDE", "#E8A33D", "#D1495B", "#1AA6B7", "#12263F", "#7A8CA5", "#6B4FBB", "#3F9E6B"],
+  "background": "#FFFFFF",
+  "foreground": "#1F2A3C",
+  "tableAccent": "#12263F",
+  "good": "#3F9E6B",
+  "neutral": "#E8A33D",
+  "bad": "#D1495B"
+}

@@ -1,0 +1,80 @@
+table dq_issue_log
+	lineageTag: 728ba879-b8aa-4579-a349-134cf0e89378
+
+	column issue_id
+		dataType: string
+		lineageTag: a3be8f8c-9d05-4bbf-bdb7-fdd6e1ac586c
+		summarizeBy: none
+		sourceColumn: issue_id
+
+		annotation SummarizationSetBy = Automatic
+
+	column found_in
+		dataType: string
+		lineageTag: 4ec23a77-35ae-4761-afb9-77a3b30756be
+		summarizeBy: none
+		sourceColumn: found_in
+
+		annotation SummarizationSetBy = Automatic
+
+	column rule_ref
+		dataType: string
+		lineageTag: ed0ff5a9-fd0d-49b6-8cd0-4e54393fac0d
+		summarizeBy: none
+		sourceColumn: rule_ref
+
+		annotation SummarizationSetBy = Automatic
+
+	column issue
+		dataType: string
+		lineageTag: 10969dd7-ef55-4b62-b5dd-5e128774ee84
+		summarizeBy: none
+		sourceColumn: issue
+
+		annotation SummarizationSetBy = Automatic
+
+	column rows_affected
+		dataType: int64
+		formatString: 0
+		lineageTag: 32d761ce-f605-4f5d-9af8-6d849f499ad5
+		summarizeBy: sum
+		sourceColumn: rows_affected
+
+		annotation SummarizationSetBy = Automatic
+
+	column severity
+		dataType: string
+		lineageTag: 556e4375-30c1-4cc7-be22-e98b2443fccc
+		summarizeBy: none
+		sourceColumn: severity
+
+		annotation SummarizationSetBy = Automatic
+
+	column resolution
+		dataType: string
+		lineageTag: c060abd2-ca20-4e66-b6dc-73347be107d8
+		summarizeBy: none
+		sourceColumn: resolution
+
+		annotation SummarizationSetBy = Automatic
+
+	column status
+		dataType: string
+		lineageTag: 2a983c98-006d-4d9e-be30-e6f97bc84012
+		summarizeBy: none
+		sourceColumn: status
+
+		annotation SummarizationSetBy = Automatic
+
+	partition dq_issue_log = m
+		mode: import
+		source =
+				let
+				    Source = Csv.Document(File.Contents("D:\Projects\mortgage-bi-dashboard\powerbi\data\dq_issue_log.csv"),[Delimiter=",", Columns=8, Encoding=1252, QuoteStyle=QuoteStyle.None]),
+				    #"Promoted Headers" = Table.PromoteHeaders(Source, [PromoteAllScalars=true]),
+				    #"Changed Type" = Table.TransformColumnTypes(#"Promoted Headers",{{"issue_id", type text}, {"found_in", type text}, {"rule_ref", type text}, {"issue", type text}, {"rows_affected", Int64.Type}, {"severity", type text}, {"resolution", type text}, {"status", type text}})
+				in
+				    #"Changed Type"
+
+	annotation PBI_ResultType = Table
+

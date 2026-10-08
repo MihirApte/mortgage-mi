@@ -1,0 +1,76 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/page/2.1.0/schema.json",
+  "name": "a65551e33611701c9bed",
+  "displayName": "Risk and arrears",
+  "displayOption": "FitToPage",
+  "height": 720,
+  "width": 1280,
+  "objects": {
+    "background": [
+      {
+        "properties": {
+          "color": {
+            "solid": {
+              "color": {
+                "expr": {
+                  "Literal": {
+                    "Value": "'#F3F5F9'"
+                  }
+                }
+              }
+            }
+          },
+          "transparency": {
+            "expr": {
+              "Literal": {
+                "Value": "0D"
+              }
+            }
+          }
+        }
+      }
+    ]
+  },
+  "visualInteractions": [
+    {
+      "source": "076a1259406dd71caf6c",
+      "target": "5ca27501579126e39e6b",
+      "type": "NoFilter"
+    },
+    {
+      "source": "5ca27501579126e39e6b",
+      "target": "4476f62e0fb7020decd2",
+      "type": "DataFilter"
+    },
+    {
+      "source": "4476f62e0fb7020decd2",
+      "target": "5ca27501579126e39e6b",
+      "type": "NoFilter"
+    },
+    {
+      "source": "5254f72232ab55c77197",
+      "target": "5ca27501579126e39e6b",
+      "type": "NoFilter"
+    },
+    {
+      "source": "5254f72232ab55c77197",
+      "target": "076a1259406dd71caf6c",
+      "type": "DataFilter"
+    },
+    {
+      "source": "5254f72232ab55c77197",
+      "target": "4476f62e0fb7020decd2",
+      "type": "DataFilter"
+    },
+    {
+      "source": "5ca27501579126e39e6b",
+      "target": "076a1259406dd71caf6c",
+      "type": "NoFilter"
+    },
+    {
+      "source": "5ca27501579126e39e6b",
+      "target": "5254f72232ab55c77197",
+      "type": "NoFilter"
+    }
+  ]
+}

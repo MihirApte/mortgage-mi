@@ -1,0 +1,99 @@
+table dq_reconciliation
+	lineageTag: 64cac9f6-5b79-467f-b4aa-518b324d1dc5
+
+	column recon_id
+		dataType: int64
+		formatString: 0
+		lineageTag: 0a3a5968-3f66-4d79-8dda-d2dd36db0f66
+		summarizeBy: sum
+		sourceColumn: recon_id
+
+		annotation SummarizationSetBy = Automatic
+
+	column check_name
+		dataType: string
+		lineageTag: 7481081a-b4f2-4b28-a548-feb034283150
+		summarizeBy: none
+		sourceColumn: check_name
+
+		annotation SummarizationSetBy = Automatic
+
+	column breakdown
+		dataType: string
+		lineageTag: be72f22d-35e5-4ccd-83f3-99fa35b77f66
+		summarizeBy: none
+		sourceColumn: breakdown
+
+		annotation SummarizationSetBy = Automatic
+
+	column from_layer
+		dataType: string
+		lineageTag: 58416641-fa9d-4018-bf23-95541a9f5cf0
+		summarizeBy: none
+		sourceColumn: from_layer
+
+		annotation SummarizationSetBy = Automatic
+
+	column from_value
+		dataType: int64
+		formatString: 0
+		lineageTag: 0faa26c4-ae8d-41bd-8282-c88a9d8cad33
+		summarizeBy: sum
+		sourceColumn: from_value
+
+		annotation SummarizationSetBy = Automatic
+
+	column to_layer
+		dataType: string
+		lineageTag: 42941459-7fe4-46d6-87c8-d98e903f1c0e
+		summarizeBy: none
+		sourceColumn: to_layer
+
+		annotation SummarizationSetBy = Automatic
+
+	column to_value
+		dataType: int64
+		formatString: 0
+		lineageTag: b9ae837c-8be9-450e-95c4-60296a4c860f
+		summarizeBy: sum
+		sourceColumn: to_value
+
+		annotation SummarizationSetBy = Automatic
+
+	column difference
+		dataType: int64
+		formatString: 0
+		lineageTag: b42097b5-f79b-4c5f-9362-09e5ceaa58cd
+		summarizeBy: sum
+		sourceColumn: difference
+
+		annotation SummarizationSetBy = Automatic
+
+	column status
+		dataType: string
+		lineageTag: a5254646-3db9-4b14-9549-a714d499d214
+		summarizeBy: none
+		sourceColumn: status
+
+		annotation SummarizationSetBy = Automatic
+
+	column note
+		dataType: string
+		lineageTag: d124cb4a-480f-4634-9a95-92757ab3f2fc
+		summarizeBy: none
+		sourceColumn: note
+
+		annotation SummarizationSetBy = Automatic
+
+	partition dq_reconciliation = m
+		mode: import
+		source =
+				let
+				    Source = Csv.Document(File.Contents("D:\Projects\mortgage-bi-dashboard\powerbi\data\dq_reconciliation.csv"),[Delimiter=",", Columns=10, Encoding=1252, QuoteStyle=QuoteStyle.None]),
+				    #"Promoted Headers" = Table.PromoteHeaders(Source, [PromoteAllScalars=true]),
+				    #"Changed Type" = Table.TransformColumnTypes(#"Promoted Headers",{{"recon_id", Int64.Type}, {"check_name", type text}, {"breakdown", type text}, {"from_layer", type text}, {"from_value", Int64.Type}, {"to_layer", type text}, {"to_value", Int64.Type}, {"difference", Int64.Type}, {"status", type text}, {"note", type text}})
+				in
+				    #"Changed Type"
+
+	annotation PBI_ResultType = Table
+

@@ -1,0 +1,444 @@
+table _Measures
+	lineageTag: ad1ebefa-0c54-4211-bd29-78ed83b85785
+
+	measure 'Latest Complete Quarter Date' =
+			
+			CALCULATE (
+			    MAX ( dim_date[quarter_end_date] ),
+			    REMOVEFILTERS ( dim_date ),
+			    dim_date[is_latest_complete_quarter] = TRUE ()
+			)
+		formatString: General Date
+		lineageTag: a1a25136-e38f-416b-8359-e7deba90d994
+
+	measure 'Report Date' =
+			
+			IF (
+			    HASONEVALUE ( dim_date[quarter_end_date] ),
+			    MAX ( dim_date[quarter_end_date] ),
+			    [Latest Complete Quarter Date]
+			)
+		formatString: General Date
+		lineageTag: f7b8a32b-c985-4572-8e8c-b597b97531d0
+
+	measure 'Reporting Quarter Label' =
+			
+			LOOKUPVALUE ( dim_date[quarter_label], dim_date[quarter_end_date], [Report Date] )
+		lineageTag: 99807ac4-86ad-484e-9f96-37f19f5753b7
+
+	measure 'Prior Quarter Date' = ```
+			
+			VAR d = [Report Date]
+			VAR pk = LOOKUPVALUE ( dim_date[prior_quarter_key], dim_date[quarter_end_date], d )
+			RETURN
+			    LOOKUPVALUE ( dim_date[quarter_end_date], dim_date[date_key], pk )
+			
+			```
+		formatString: General Date
+		lineageTag: 32710f9b-8a8a-427f-a0c3-3f2c56d7008e
+
+	measure 'Is Complete Quarter' = ```
+			
+			LOOKUPVALUE ( dim_date[is_complete_quarter], dim_date[quarter_end_date], [Report Date] )
+			
+			```
+		formatString: """TRUE"";""TRUE"";""FALSE"""
+		lineageTag: 748dd8aa-a09c-453e-960a-440aa18d5e29
+
+	measure 'Arrears Accounts' = ```
+			
+			VAR d = [Report Date]
+			RETURN
+			    CALCULATE (
+			        SUM ( fact_mortgage_measure[value] ),
+			        dim_measure[measure_code] = "ARREARS_ACCOUNTS",
+			        REMOVEFILTERS ( dim_date ),
+			        dim_date[quarter_end_date] = d
+			    )
+			
+			```
+		formatString: #,0
+		lineageTag: 2e142966-0115-4f19-97dd-854984cc66cd
+
+	measure 'Outstanding Accounts' = ```
+			
+			VAR d = [Report Date]
+			RETURN
+			    CALCULATE (
+			        SUM ( fact_mortgage_measure[value] ),
+			        dim_measure[measure_code] = "OUTSTANDING_ACCOUNTS",
+			        REMOVEFILTERS ( dim_date ),
+			        dim_date[quarter_end_date] = d
+			    )
+			
+			```
+		formatString: #,0
+		lineageTag: 3aa4fb42-d7a8-431e-b56f-63dd980e7354
+
+	measure 'Arrears Balance' = ```
+			
+			VAR d = [Report Date]
+			RETURN
+			    CALCULATE (
+			        SUM ( fact_mortgage_measure[value] ),
+			        dim_measure[measure_code] = "ARREARS_BALANCE",
+			        REMOVEFILTERS ( dim_date ),
+			        dim_date[quarter_end_date] = d
+			    )
+			
+			```
+		formatString: 0
+		lineageTag: 36ffad5c-5ece-4eb2-8ac2-acdeb55fe097
+
+	measure 'Outstanding Balance' = ```
+			
+			VAR d = [Report Date]
+			RETURN
+			    CALCULATE (
+			        SUM ( fact_mortgage_measure[value] ),
+			        dim_measure[measure_code] = "OUTSTANDING_BALANCE",
+			        REMOVEFILTERS ( dim_date ),
+			        dim_date[quarter_end_date] = d
+			    )
+			
+			```
+		formatString: 0
+		lineageTag: 82bede36-cfc7-4744-b1a9-c3c306741fed
+
+	measure 'Arrears Amount' = ```
+			
+			VAR d = [Report Date]
+			RETURN
+			    CALCULATE (
+			        SUM ( fact_mortgage_measure[value] ),
+			        dim_measure[measure_code] = "ARREARS_AMOUNT",
+			        REMOVEFILTERS ( dim_date ),
+			        dim_date[quarter_end_date] = d
+			    )
+			
+			```
+		formatString: 0
+		lineageTag: 9dcbd2ba-b0b5-4d21-ba32-438f7ed2dac7
+
+	measure 'Arrears Rate (Accounts)' = ```
+			
+			DIVIDE ( [Arrears Accounts], [Outstanding Accounts] )
+			
+			```
+		formatString: 0.00%;-0.00%;0.00%
+		lineageTag: a8e4c831-e736-43d4-8bc0-f1ff54f57b0a
+
+	measure 'Arrears Rate (Balance)' = ```
+			
+			DIVIDE ( [Arrears Balance], [Outstanding Balance] )
+			
+			```
+		formatString: 0.00%;-0.00%;0.00%
+		lineageTag: 64a7d2d0-75f0-45a7-90c1-21d13331c493
+
+	measure 'Outstanding Balance (EUR bn)' =
+			
+			DIVIDE ( [Outstanding Balance], 1000000 )
+		formatString: 0.0
+		lineageTag: 88af50c3-1082-4c4d-b5fe-1906b14d8f8e
+
+	measure 'Arrears Balance (EUR bn)' =
+			
+			DIVIDE ( [Arrears Balance], 1000000 )
+		formatString: 0.0
+		lineageTag: b2def6b5-1ed5-4b32-b924-2a7ea8f6695c
+
+	measure 'Arrears Amount (EUR m)' = ```
+			
+			DIVIDE ( [Arrears Amount], 1000 )
+			
+			```
+		formatString: 0.0
+		lineageTag: 19debf69-26d1-4efb-9b16-415474f97ac8
+
+	measure 'Arrears Accounts PQ' =
+			
+			VAR d = [Prior Quarter Date]
+			RETURN
+			    CALCULATE (
+			        SUM ( fact_mortgage_measure[value] ),
+			        dim_measure[measure_code] = "ARREARS_ACCOUNTS",
+			        REMOVEFILTERS ( dim_date ),
+			        dim_date[quarter_end_date] = d
+			    )
+		formatString: 0
+		lineageTag: 6ad07d9a-4b7e-4545-8e7d-5109a05f5469
+
+	measure 'Outstanding Accounts PQ' = ```
+			
+			VAR d = [Prior Quarter Date]
+			RETURN
+			    CALCULATE (
+			        SUM ( fact_mortgage_measure[value] ),
+			        dim_measure[measure_code] = "OUTSTANDING_ACCOUNTS",
+			        REMOVEFILTERS ( dim_date ),
+			        dim_date[quarter_end_date] = d
+			    )
+			
+			```
+		formatString: 0
+		lineageTag: 73ade048-8c56-4904-adcf-d4e4e3c8f262
+
+	measure 'Outstanding Balance PQ' = ```
+			
+			VAR d = [Prior Quarter Date]
+			RETURN
+			    CALCULATE (
+			        SUM ( fact_mortgage_measure[value] ),
+			        dim_measure[measure_code] = "OUTSTANDING_BALANCE",
+			        REMOVEFILTERS ( dim_date ),
+			        dim_date[quarter_end_date] = d
+			    )
+			
+			```
+		formatString: 0
+		lineageTag: 0a5381de-224e-48c4-8664-f10bdcf36367
+
+	measure 'Arrears Rate (Accounts) PQ' =
+			
+			DIVIDE ( [Arrears Accounts PQ], [Outstanding Accounts PQ] )
+		lineageTag: fa6284e0-86b0-4131-bcf7-bd00a37deb70
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	measure 'QoQ Change Arrears Accounts' =
+			
+			IF (
+			    NOT [Like For Like] || ISBLANK ( [Arrears Accounts] ) || ISBLANK ( [Arrears Accounts PQ] ),
+			    BLANK (),
+			    [Arrears Accounts] - [Arrears Accounts PQ]
+			)
+		formatString: #,0
+		lineageTag: ce503d3f-149a-4baa-b6f1-933bd41d5f47
+
+	measure 'QoQ Change Arrears Rate (pp)' =
+			
+			IF (
+			    NOT [Like For Like] || ISBLANK ( [Arrears Rate (Accounts)] ) || ISBLANK ( [Arrears Rate (Accounts) PQ] ),
+			    BLANK (),
+			    ( [Arrears Rate (Accounts)] - [Arrears Rate (Accounts) PQ] ) * 100
+			)
+		formatString: 0.00
+		lineageTag: c741fbfb-1df3-4945-9a85-014f5ec0c8f7
+
+	measure 'QoQ Change Outstanding Balance' =
+			
+			IF (
+			    NOT [Like For Like] || ISBLANK ( [Outstanding Balance] ) || ISBLANK ( [Outstanding Balance PQ] ),
+			    BLANK (),
+			    [Outstanding Balance] - [Outstanding Balance PQ]
+			)
+		formatString: 0
+		lineageTag: 83901ef5-4701-4ae2-baaa-d334632d434e
+
+	measure 'Accounts in Arrears by Bucket' =
+			
+			VAR d = [Report Date]
+			RETURN
+			    CALCULATE (
+			        SUM ( fact_mortgage_measure[value] ),
+			        dim_measure[category] = "Arrears",
+			        dim_measure[metric_name] = "Accounts",
+			        dim_measure[is_total] = FALSE (),
+			        REMOVEFILTERS ( dim_date ),
+			        dim_date[quarter_end_date] = d
+			    )
+		formatString: 0
+		lineageTag: 77d3e12d-22d3-444d-80d9-5aea92ff1f14
+
+	measure 'Over 180 Days Accounts' = ```
+			
+			CALCULATE ( [Accounts in Arrears by Bucket], dim_measure[harmonised_bucket] = "Over 180 days" )
+			
+			```
+		formatString: 0
+		lineageTag: e573f6be-2587-4346-b372-c5d1c1d34844
+
+	measure 'Over 180 Days Share' = ```
+			
+			DIVIDE ( [Over 180 Days Accounts], [Arrears Accounts] )
+			
+			```
+		formatString: 0.0%;-0.0%;0.0%
+		lineageTag: a485484a-691f-41b4-8fcb-97f6e67da6c0
+
+	measure 'Segment Risk Rank' =
+			
+			IF (
+			    ISBLANK ( [Arrears Rate (Accounts)] ) || NOT HASONEVALUE ( dim_segment[segment_label] ),
+			    BLANK (),
+			    RANKX (
+			        ALLSELECTED ( dim_segment[segment_label] ),
+			        [Arrears Rate (Accounts)],
+			        ,
+			        DESC,
+			        DENSE
+			    )
+			)
+		formatString: 0
+		lineageTag: 3895c7bf-c40f-41d3-bae5-bfad8bebe7a6
+
+	measure 'Highest Risk Segment' =
+			
+			VAR t =
+			    ADDCOLUMNS (
+			        ALLSELECTED ( dim_segment[segment_label] ),
+			        "RiskRate", [Arrears Rate (Accounts)]
+			    )
+			VAR top1 = TOPN ( 1, FILTER ( t, NOT ISBLANK ( [RiskRate] ) ), [RiskRate], DESC )
+			RETURN
+			    MAXX ( top1, dim_segment[segment_label] )
+		lineageTag: 22b99213-96f7-499a-941b-4e0bf9c1ff6d
+
+	measure 'Share of Total Outstanding Balance' = ```
+			
+			DIVIDE (
+			    [Outstanding Balance],
+			    CALCULATE ( [Outstanding Balance], REMOVEFILTERS ( dim_segment ) )
+			)
+			
+			```
+		formatString: 0.00%;-0.00%;0.00%
+		lineageTag: 9a29c8a5-9466-4bae-85a7-f37418b34a98
+
+	measure 'Segments Reporting' =
+			
+			SUMX (
+			    ALL ( dim_segment[segment_label] ),
+			    IF ( ISBLANK ( [Arrears Accounts] ), 0, 1 )
+			)
+		formatString: 0
+		lineageTag: 053268ad-b15a-4b0a-b4e1-fc2ea76fd55d
+
+	measure 'Completeness Note' = ```
+			
+			[Reporting Quarter Label] & ": " & [Segments Reporting] & " of 4 segments reported"
+			    & IF ( [Segments Reporting] < 4, ". Totals leave out the missing segment.", "." )
+			
+			```
+		lineageTag: 731c29e5-4c8f-4258-9a38-7421612516d8
+
+	measure 'Arrears Rate Market Trend' = ```
+			
+			IF ( [Is Complete Quarter], [Arrears Rate (Accounts)] )
+			
+			```
+		lineageTag: b0a3832f-b9de-4dab-b5d6-e94654646e5d
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	measure 'DQ Rules Run' =
+			
+			COUNTROWS ( dq_check_result )
+		formatString: 0
+		lineageTag: 0c1eac8b-e359-40b8-8933-476cf1ff341a
+
+	measure 'DQ Rules Passed' =
+			
+			CALCULATE ( COUNTROWS ( dq_check_result ), dq_check_result[status] = "pass" )
+		formatString: 0
+		lineageTag: 6d99bd7d-113d-4a76-8132-ed3b3617dde8
+
+	measure 'DQ Rules Warning' =
+			
+			CALCULATE ( COUNTROWS ( dq_check_result ), dq_check_result[status] = "warn" )
+		formatString: 0
+		lineageTag: a675fe91-fca4-4fea-9225-4747d5217c9e
+
+	measure 'DQ Rules Info' = ```
+			
+			CALCULATE ( COUNTROWS ( dq_check_result ), dq_check_result[status] = "info" )
+			
+			```
+		formatString: 0
+		lineageTag: ce3ef325-bf0e-4f05-98e5-8955769aa1ec
+
+	measure 'DQ Rules Failed' = ```
+			
+			CALCULATE ( COUNTROWS ( dq_check_result ), dq_check_result[status] = "fail" ) + 0
+			
+			```
+		formatString: 0
+		lineageTag: b100fcc1-45f0-4868-81ac-8bba515204bf
+
+	measure 'DQ Pass Rate' = ```
+			
+			DIVIDE ( [DQ Rules Passed], [DQ Rules Run] )
+			
+			```
+		lineageTag: f689f25c-7d85-4bf6-9661-18ff8620f614
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	measure 'Reconciliation Steps' = ```
+			
+			COUNTROWS ( dq_reconciliation )
+			
+			```
+		formatString: 0
+		lineageTag: 07e58f4c-3881-4d9e-9df1-d026fb8fcd2b
+
+	measure 'Reconciliation Matched' = ```
+			
+			CALCULATE ( COUNTROWS ( dq_reconciliation ), dq_reconciliation[status] = "match" )
+			
+			```
+		formatString: 0
+		lineageTag: 22b2081b-554c-4b2f-bc62-3e8ac93ad508
+
+	measure 'Issues Logged' =
+			
+			COUNTROWS ( dq_issue_log )
+		formatString: 0
+		lineageTag: 18ac6534-630e-4116-9a34-68f9db18ee63
+
+	measure 'Issue Rows Affected' = ```
+			
+			SUM ( dq_issue_log[rows_affected] )
+			
+			```
+		formatString: 0
+		lineageTag: 55e99e7c-14f5-4f09-9b0b-211bdb3a6b2c
+
+	measure 'Segments Reporting PQ' =
+			
+			SUMX (
+			    ALL ( dim_segment[segment_label] ),
+			    IF ( ISBLANK ( [Arrears Accounts PQ] ), 0, 1 )
+			)
+		formatString: 0
+		lineageTag: b03bf936-8839-40f1-bb7f-932d584e0de5
+
+	measure 'Like For Like' =
+			
+			HASONEVALUE ( dim_segment[segment_label] ) || [Segments Reporting] = [Segments Reporting PQ]
+		formatString: """TRUE"";""TRUE"";""FALSE"""
+		lineageTag: ef4665f0-ed53-4c46-a971-91fd21e1e6b7
+
+	column Column1
+		dataType: string
+		isHidden
+		lineageTag: 59359d67-a235-4de9-9df4-050b7ad2f612
+		summarizeBy: none
+		sourceColumn: Column1
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+	partition _Measures = m
+		mode: import
+		source =
+				let
+				    Source = Table.FromRows(Json.Document(Binary.Decompress(Binary.FromText("i44FAA==", BinaryEncoding.Base64), Compression.Deflate)), let _t = ((type nullable text) meta [Serialized.Text = true]) in type table [Column1 = _t]),
+				    #"Changed Type" = Table.TransformColumnTypes(Source,{{"Column1", type text}})
+				in
+				    #"Changed Type"
+
+	annotation PBI_ResultType = Table
+

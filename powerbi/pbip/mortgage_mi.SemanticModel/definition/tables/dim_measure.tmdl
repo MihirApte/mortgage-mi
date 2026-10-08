@@ -1,0 +1,119 @@
+table dim_measure
+	lineageTag: edb59c11-365e-43ce-b94a-1f0d0003d3d5
+
+	column measure_key
+		dataType: int64
+		formatString: 0
+		lineageTag: 637aa6a1-ade9-4b20-b066-cb6b715396a5
+		summarizeBy: none
+		sourceColumn: measure_key
+
+		annotation SummarizationSetBy = Automatic
+
+	column category
+		dataType: string
+		lineageTag: 8b49c516-0ba9-45b4-a167-8d7fe265075d
+		summarizeBy: none
+		sourceColumn: category
+
+		annotation SummarizationSetBy = Automatic
+
+	column source_row_position
+		dataType: int64
+		formatString: 0
+		lineageTag: 5ca7c541-5a55-4c88-87d4-230a4c7324dd
+		summarizeBy: none
+		sourceColumn: source_row_position
+
+		annotation SummarizationSetBy = Automatic
+
+	column source_column_position
+		dataType: int64
+		formatString: 0
+		lineageTag: 35c8bb97-16ac-43c9-953b-547787d0871f
+		summarizeBy: none
+		sourceColumn: source_column_position
+
+		annotation SummarizationSetBy = Automatic
+
+	column line_item
+		dataType: string
+		lineageTag: f3b2c9af-0486-48be-a2f8-66d7a6154f22
+		summarizeBy: none
+		sourceColumn: line_item
+
+		annotation SummarizationSetBy = Automatic
+
+	column source_row_label
+		dataType: string
+		lineageTag: ecd3f6ad-61ef-4d9e-9b98-9c435a6121bf
+		summarizeBy: none
+		sourceColumn: source_row_label
+
+		annotation SummarizationSetBy = Automatic
+
+	column metric_name
+		dataType: string
+		lineageTag: a3b15f8d-54b7-4ca3-ab22-a98f06bf28b9
+		summarizeBy: none
+		sourceColumn: metric_name
+
+		annotation SummarizationSetBy = Automatic
+
+	column unit
+		dataType: string
+		lineageTag: 9052d6d7-3b68-4b50-92fc-3ae93c4f782c
+		summarizeBy: none
+		sourceColumn: unit
+
+		annotation SummarizationSetBy = Automatic
+
+	column is_total
+		dataType: boolean
+		formatString: """TRUE"";""TRUE"";""FALSE"""
+		lineageTag: 4d679d73-6077-4886-81c0-f6d3916218fc
+		summarizeBy: none
+		sourceColumn: is_total
+
+		annotation SummarizationSetBy = Automatic
+
+	column harmonised_bucket
+		dataType: string
+		lineageTag: fa01275c-2250-46bb-b0f7-390c48efe7bf
+		summarizeBy: none
+		sourceColumn: harmonised_bucket
+		sortByColumn: harmonised_bucket_sort
+
+		changedProperty = SortByColumn
+
+		annotation SummarizationSetBy = Automatic
+
+	column harmonised_bucket_sort
+		dataType: int64
+		formatString: 0
+		lineageTag: 8c5c0527-a025-4d28-9bf6-f676661d31c9
+		summarizeBy: none
+		sourceColumn: harmonised_bucket_sort
+
+		annotation SummarizationSetBy = Automatic
+
+	column measure_code
+		dataType: string
+		lineageTag: 268a2975-e749-4dc8-9a99-c1246f31742d
+		summarizeBy: none
+		sourceColumn: measure_code
+
+		annotation SummarizationSetBy = Automatic
+
+	partition dim_measure = m
+		mode: import
+		source =
+				let
+				    Source = Csv.Document(File.Contents("D:\Projects\mortgage-bi-dashboard\powerbi\data\dim_measure.csv"),[Delimiter=",", Columns=12, Encoding=1252, QuoteStyle=QuoteStyle.None]),
+				    #"Promoted Headers" = Table.PromoteHeaders(Source, [PromoteAllScalars=true]),
+				    #"Changed Type" = Table.TransformColumnTypes(#"Promoted Headers",{{"measure_key", Int64.Type}, {"category", type text}, {"source_row_position", Int64.Type}, {"source_column_position", Int64.Type}, {"line_item", type text}, {"source_row_label", type text}, {"metric_name", type text}, {"unit", type text}, {"is_total", type logical}, {"harmonised_bucket", type text}, {"harmonised_bucket_sort", Int64.Type}, {"measure_code", type text}})
+				in
+				    #"Changed Type"
+
+	annotation PBI_ResultType = Table
+

@@ -1,0 +1,14 @@
+# Power BI project: local cache and per-user settings (the report itself is kept)
+**/.pbi/cache.abf
+**/.pbi/localSettings.json
+powerbi/pbip_backup_before_layout/
+
+# Python
+__pycache__/
+*.pyc
+
+# Editor and OS files
+.vscode/
+.DS_Store
+Thumbs.db
+~$*

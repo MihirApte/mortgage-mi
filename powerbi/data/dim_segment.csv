@@ -1,0 +1,5 @@
+segment_key,lender_group_key,portfolio_key,lender_group_name,portfolio_code,portfolio_name,segment_label
+11,1,1,Banks,PDH,Principal dwelling house (owner occupied),Banks PDH
+12,1,2,Banks,BTL,Buy-to-let,Banks BTL
+21,2,1,Non-Banks,PDH,Principal dwelling house (owner occupied),Non-Banks PDH
+22,2,2,Non-Banks,BTL,Buy-to-let,Non-Banks BTL

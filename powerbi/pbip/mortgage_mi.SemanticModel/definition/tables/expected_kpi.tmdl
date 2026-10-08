@@ -1,0 +1,49 @@
+table expected_kpi
+	lineageTag: 6b3a1647-b060-48ad-8b98-347ea531de9e
+
+	column quarter_label
+		dataType: string
+		lineageTag: 0da37681-ad36-4983-b4b2-7126cd3cfb87
+		summarizeBy: none
+		sourceColumn: quarter_label
+
+		annotation SummarizationSetBy = Automatic
+
+	column segment
+		dataType: string
+		lineageTag: c266245c-06d0-49ab-9118-1cfc8247b5e3
+		summarizeBy: none
+		sourceColumn: segment
+
+		annotation SummarizationSetBy = Automatic
+
+	column kpi_code
+		dataType: string
+		lineageTag: 4460958a-46db-44ce-a8ce-5aa0136d7c93
+		summarizeBy: none
+		sourceColumn: kpi_code
+
+		annotation SummarizationSetBy = Automatic
+
+	column kpi_value
+		dataType: double
+		lineageTag: 546fd69a-8222-42d8-8e2f-94a5c97b89ac
+		summarizeBy: sum
+		sourceColumn: kpi_value
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	partition expected_kpi = m
+		mode: import
+		source =
+				let
+				    Source = Csv.Document(File.Contents("D:\Projects\mortgage-bi-dashboard\powerbi\data\expected_kpi.csv"),[Delimiter=",", Columns=4, Encoding=1252, QuoteStyle=QuoteStyle.None]),
+				    #"Promoted Headers" = Table.PromoteHeaders(Source, [PromoteAllScalars=true]),
+				    #"Changed Type" = Table.TransformColumnTypes(#"Promoted Headers",{{"quarter_label", type text}, {"segment", type text}, {"kpi_code", type text}, {"kpi_value", type number}})
+				in
+				    #"Changed Type"
+
+	annotation PBI_ResultType = Table
+

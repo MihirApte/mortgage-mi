@@ -1,0 +1,30 @@
+model Model
+	culture: en-US
+	defaultPowerBIDataSourceVersion: powerBI_V3
+	sourceQueryCulture: en-US
+	valueFilterBehavior: independent
+	dataAccessOptions
+		legacyRedirects
+		returnErrorValuesAsNull
+
+annotation __PBI_TimeIntelligenceEnabled = 1
+
+annotation PBI_QueryOrder = ["dim_date","dim_measure","dim_segment","dq_check_result","dq_issue_log","dq_reconciliation","dq_rule","expected_kpi","fact_mortgage_measure","_Measures"]
+
+annotation PBI_ProTooling = ["DevMode"]
+
+ref table dim_date
+ref table DateTableTemplate_8562d841-1f23-4a18-92f2-8abe3b80bcb5
+ref table LocalDateTable_34c3d1a9-b8c0-49e9-9e41-8106f60dfe5c
+ref table dim_measure
+ref table dim_segment
+ref table dq_check_result
+ref table dq_issue_log
+ref table dq_reconciliation
+ref table dq_rule
+ref table expected_kpi
+ref table fact_mortgage_measure
+ref table _Measures
+
+ref cultureInfo en-US
+

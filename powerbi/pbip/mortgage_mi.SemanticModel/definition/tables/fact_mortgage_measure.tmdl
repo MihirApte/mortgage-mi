@@ -1,0 +1,60 @@
+table fact_mortgage_measure
+	lineageTag: 99da6a4f-eccd-4b0c-a0e4-8746a6387ef4
+
+	column date_key
+		dataType: int64
+		formatString: 0
+		lineageTag: 5fe8449c-a877-4939-b91e-86f7fdcfcc1c
+		summarizeBy: none
+		sourceColumn: date_key
+
+		annotation SummarizationSetBy = Automatic
+
+	column segment_key
+		dataType: int64
+		formatString: 0
+		lineageTag: 11b997fe-a502-4f5d-9376-31a24ffb57fc
+		summarizeBy: none
+		sourceColumn: segment_key
+
+		annotation SummarizationSetBy = Automatic
+
+	column measure_key
+		dataType: int64
+		formatString: 0
+		lineageTag: 71fc32b5-de87-46bb-add2-69e38ae0be33
+		summarizeBy: none
+		sourceColumn: measure_key
+
+		annotation SummarizationSetBy = Automatic
+
+	column value
+		dataType: int64
+		formatString: 0
+		lineageTag: 83741c69-455c-43e7-a3a3-76647565d638
+		summarizeBy: sum
+		sourceColumn: value
+
+		annotation SummarizationSetBy = Automatic
+
+	column source_raw_row_id
+		dataType: int64
+		formatString: 0
+		lineageTag: aa21bd7b-06cd-446e-ab53-110205501a3a
+		summarizeBy: sum
+		sourceColumn: source_raw_row_id
+
+		annotation SummarizationSetBy = Automatic
+
+	partition fact_mortgage_measure = m
+		mode: import
+		source =
+				let
+				    Source = Csv.Document(File.Contents("D:\Projects\mortgage-bi-dashboard\powerbi\data\fact_mortgage_measure.csv"),[Delimiter=",", Columns=5, Encoding=1252, QuoteStyle=QuoteStyle.None]),
+				    #"Promoted Headers" = Table.PromoteHeaders(Source, [PromoteAllScalars=true]),
+				    #"Changed Type" = Table.TransformColumnTypes(#"Promoted Headers",{{"date_key", Int64.Type}, {"segment_key", Int64.Type}, {"measure_key", Int64.Type}, {"value", Int64.Type}, {"source_raw_row_id", Int64.Type}})
+				in
+				    #"Changed Type"
+
+	annotation PBI_ResultType = Table
+

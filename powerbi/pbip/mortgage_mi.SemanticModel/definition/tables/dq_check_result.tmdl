@@ -1,0 +1,84 @@
+table dq_check_result
+	lineageTag: cb323acb-9db0-4b71-9be0-83dae7ed0a51
+
+	column check_id
+		dataType: int64
+		formatString: 0
+		lineageTag: f65863fc-04fd-47f0-aa73-0e31ca488a87
+		summarizeBy: sum
+		sourceColumn: check_id
+
+		annotation SummarizationSetBy = Automatic
+
+	column run_label
+		dataType: string
+		lineageTag: 9e41f430-086d-4121-9cf5-7bbb898b5c83
+		summarizeBy: none
+		sourceColumn: run_label
+
+		annotation SummarizationSetBy = Automatic
+
+	column rule_id
+		dataType: string
+		lineageTag: 37a87a19-feac-4aae-b4c0-e68816473c3d
+		summarizeBy: none
+		sourceColumn: rule_id
+
+		annotation SummarizationSetBy = Automatic
+
+	column rows_tested
+		dataType: int64
+		formatString: 0
+		lineageTag: a166adbc-3389-4bdb-afef-a34a7443a3fd
+		summarizeBy: sum
+		sourceColumn: rows_tested
+
+		annotation SummarizationSetBy = Automatic
+
+	column rows_failed
+		dataType: int64
+		formatString: 0
+		lineageTag: 9e9d2e75-4c22-4efc-a53e-5c3f8f45dc49
+		summarizeBy: sum
+		sourceColumn: rows_failed
+
+		annotation SummarizationSetBy = Automatic
+
+	column pct_failed
+		dataType: double
+		lineageTag: 90f6704d-5410-4326-bdd7-6c41f23fbd5a
+		summarizeBy: sum
+		sourceColumn: pct_failed
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column status
+		dataType: string
+		lineageTag: 633f6451-9890-4afe-9045-7b1ac9900300
+		summarizeBy: none
+		sourceColumn: status
+
+		annotation SummarizationSetBy = Automatic
+
+	column detail
+		dataType: string
+		lineageTag: 12e95113-0506-421e-9496-a0be7b2cd76d
+		summarizeBy: none
+		sourceColumn: detail
+
+		annotation SummarizationSetBy = Automatic
+
+	partition dq_check_result = m
+		mode: import
+		source =
+				let
+				    Source = Csv.Document(File.Contents("D:\Projects\mortgage-bi-dashboard\powerbi\data\dq_check_result.csv"),[Delimiter=",", Columns=8, Encoding=1252, QuoteStyle=QuoteStyle.None]),
+				    #"Promoted Headers" = Table.PromoteHeaders(Source, [PromoteAllScalars=true]),
+				    #"Changed Type" = Table.TransformColumnTypes(#"Promoted Headers",{{"check_id", Int64.Type}, {"run_label", type text}, {"rule_id", type text}, {"rows_tested", Int64.Type}, {"rows_failed", Int64.Type}, {"pct_failed", type number}, {"status", type text}, {"detail", type text}})
+				in
+				    #"Changed Type"
+
+	annotation PBI_ResultType = Table
+

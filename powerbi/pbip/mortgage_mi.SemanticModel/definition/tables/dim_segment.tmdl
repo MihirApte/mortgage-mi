@@ -1,0 +1,74 @@
+table dim_segment
+	lineageTag: 78789e94-f7dd-4390-b36a-f518f825a7ff
+
+	column segment_key
+		dataType: int64
+		formatString: 0
+		lineageTag: 4f02bb38-7e5c-476b-9fc3-3f5222782eed
+		summarizeBy: none
+		sourceColumn: segment_key
+
+		annotation SummarizationSetBy = Automatic
+
+	column lender_group_key
+		dataType: int64
+		formatString: 0
+		lineageTag: e18cf524-a246-4dbc-8585-86ec5f948e2e
+		summarizeBy: none
+		sourceColumn: lender_group_key
+
+		annotation SummarizationSetBy = Automatic
+
+	column portfolio_key
+		dataType: int64
+		formatString: 0
+		lineageTag: a9a2eb1f-8d72-4493-82f9-e2905d551a19
+		summarizeBy: none
+		sourceColumn: portfolio_key
+
+		annotation SummarizationSetBy = Automatic
+
+	column lender_group_name
+		dataType: string
+		lineageTag: a979b39c-af3c-4c0b-83c2-bce42d702c99
+		summarizeBy: none
+		sourceColumn: lender_group_name
+
+		annotation SummarizationSetBy = Automatic
+
+	column portfolio_code
+		dataType: string
+		lineageTag: 4274cf62-3753-4015-8dfb-6e43e2d7c11e
+		summarizeBy: none
+		sourceColumn: portfolio_code
+
+		annotation SummarizationSetBy = Automatic
+
+	column portfolio_name
+		dataType: string
+		lineageTag: fc75644c-ec4e-4071-8836-43ee8b437237
+		summarizeBy: none
+		sourceColumn: portfolio_name
+
+		annotation SummarizationSetBy = Automatic
+
+	column segment_label
+		dataType: string
+		lineageTag: 9f3f9827-f22d-45a2-99fa-e9757f87de82
+		summarizeBy: none
+		sourceColumn: segment_label
+
+		annotation SummarizationSetBy = Automatic
+
+	partition dim_segment = m
+		mode: import
+		source =
+				let
+				    Source = Csv.Document(File.Contents("D:\Projects\mortgage-bi-dashboard\powerbi\data\dim_segment.csv"),[Delimiter=",", Columns=7, Encoding=1252, QuoteStyle=QuoteStyle.None]),
+				    #"Promoted Headers" = Table.PromoteHeaders(Source, [PromoteAllScalars=true]),
+				    #"Changed Type" = Table.TransformColumnTypes(#"Promoted Headers",{{"segment_key", Int64.Type}, {"lender_group_key", Int64.Type}, {"portfolio_key", Int64.Type}, {"lender_group_name", type text}, {"portfolio_code", type text}, {"portfolio_name", type text}, {"segment_label", type text}})
+				in
+				    #"Changed Type"
+
+	annotation PBI_ResultType = Table
+

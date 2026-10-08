@@ -1,0 +1,102 @@
+table dim_date
+	lineageTag: 8f32f8d8-9cf8-451e-a328-40902d00dfd6
+
+	column date_key
+		dataType: int64
+		formatString: 0
+		lineageTag: 1ca7998b-4108-4abf-9604-67b4cf90024a
+		summarizeBy: none
+		sourceColumn: date_key
+
+		annotation SummarizationSetBy = Automatic
+
+	column quarter_end_date
+		dataType: dateTime
+		formatString: Long Date
+		lineageTag: 883d8885-7fb6-41dc-bba1-558741ad8aec
+		summarizeBy: none
+		sourceColumn: quarter_end_date
+
+		variation Variation
+			isDefault
+			relationship: 7e4b60f9-626f-4245-adaa-fa061880ffe6
+			defaultHierarchy: LocalDateTable_34c3d1a9-b8c0-49e9-9e41-8106f60dfe5c.'Date Hierarchy'
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation UnderlyingDateTimeDataType = Date
+
+	column calendar_year
+		dataType: int64
+		formatString: 0
+		lineageTag: 1e39207b-c1b0-4067-ad72-f0e2619bdb56
+		summarizeBy: sum
+		sourceColumn: calendar_year
+
+		annotation SummarizationSetBy = Automatic
+
+	column calendar_quarter
+		dataType: int64
+		formatString: 0
+		lineageTag: 0414ec77-f1f2-4d65-bf3a-ea55f5054b30
+		summarizeBy: sum
+		sourceColumn: calendar_quarter
+
+		annotation SummarizationSetBy = Automatic
+
+	column quarter_label
+		dataType: string
+		lineageTag: 9a03a7b7-5c92-4f64-ac8d-ebb93a4e663c
+		summarizeBy: none
+		sourceColumn: quarter_label
+
+		annotation SummarizationSetBy = Automatic
+
+	column quarter_sort
+		dataType: int64
+		formatString: 0
+		lineageTag: 9abeebec-99b3-4964-956f-a11804c60e24
+		summarizeBy: sum
+		sourceColumn: quarter_sort
+
+		annotation SummarizationSetBy = Automatic
+
+	column prior_quarter_key
+		dataType: int64
+		formatString: 0
+		lineageTag: 6f75de99-683d-4a7d-9a50-57cc94830f45
+		summarizeBy: sum
+		sourceColumn: prior_quarter_key
+
+		annotation SummarizationSetBy = Automatic
+
+	column is_complete_quarter
+		dataType: boolean
+		formatString: """TRUE"";""TRUE"";""FALSE"""
+		lineageTag: dc65eecf-8c93-4abe-bfb2-7b254e28ffce
+		summarizeBy: none
+		sourceColumn: is_complete_quarter
+
+		annotation SummarizationSetBy = Automatic
+
+	column is_latest_complete_quarter
+		dataType: boolean
+		formatString: """TRUE"";""TRUE"";""FALSE"""
+		lineageTag: ab0e42b2-75cc-4159-93a3-69d862153bca
+		summarizeBy: none
+		sourceColumn: is_latest_complete_quarter
+
+		annotation SummarizationSetBy = Automatic
+
+	partition dim_date = m
+		mode: import
+		source =
+				let
+				    Source = Csv.Document(File.Contents("D:\Projects\mortgage-bi-dashboard\powerbi\data\dim_date.csv"),[Delimiter=",", Columns=9, Encoding=1252, QuoteStyle=QuoteStyle.None]),
+				    #"Promoted Headers" = Table.PromoteHeaders(Source, [PromoteAllScalars=true]),
+				    #"Changed Type" = Table.TransformColumnTypes(#"Promoted Headers",{{"date_key", Int64.Type}, {"quarter_end_date", type date}, {"calendar_year", Int64.Type}, {"calendar_quarter", Int64.Type}, {"quarter_label", type text}, {"quarter_sort", Int64.Type}, {"prior_quarter_key", Int64.Type}, {"is_complete_quarter", type logical}, {"is_latest_complete_quarter", type logical}})
+				in
+				    #"Changed Type"
+
+	annotation PBI_ResultType = Table
+
